@@ -1,34 +1,42 @@
-import { sqlServerPool } from "../db/sqlserver";
+import { sqlServerPool } from '../db/sqlserver'
 
 /**
- * 从 SQLServer 读取所有表字段信息
+ * 从 SQLServer 加载 schema
+ *
+ * 包含:
+ * - 表名
+ * - 字段名
+ * - 数据类型
+ * - 中文注释
  */
-export const loadSchemaFromSQLServer = async () => {
-  const result = await sqlServerPool.request().query(`
-    SELECT
-      t.TABLE_NAME,
+export const loadSchemaFromSQLServer =
+  async () => {
+    const result =
+      await sqlServerPool.request().query(`
+        SELECT
+          t.name AS TABLE_NAME,
 
-      c.COLUMN_NAME,
+          c.name AS COLUMN_NAME,
 
-      c.DATA_TYPE,
+          ty.name AS DATA_TYPE,
 
-      c.IS_NULLABLE,
+          ep.value AS COLUMN_COMMENT
 
-      COLUMNPROPERTY(
-        OBJECT_ID(c.TABLE_NAME),
-        c.COLUMN_NAME,
-        'IsIdentity'
-      ) AS IS_PRIMARY_KEY
+        FROM sys.tables t
 
-    FROM INFORMATION_SCHEMA.TABLES t
+        INNER JOIN sys.columns c
+          ON t.object_id = c.object_id
 
-    INNER JOIN INFORMATION_SCHEMA.COLUMNS c
-      ON t.TABLE_NAME = c.TABLE_NAME
+        INNER JOIN sys.types ty
+          ON c.user_type_id = ty.user_type_id
 
-    WHERE t.TABLE_TYPE = 'BASE TABLE'
+        LEFT JOIN sys.extended_properties ep
+          ON ep.major_id = c.object_id
+          AND ep.minor_id = c.column_id
+          AND ep.name = 'MS_Description'
 
-    ORDER BY t.TABLE_NAME
-  `);
+        ORDER BY t.name
+      `)
 
-  return result.recordset;
-};
+    return result.recordset
+  }

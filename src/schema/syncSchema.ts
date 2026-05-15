@@ -11,23 +11,31 @@ export const syncSchema = async () => {
   const schemaList = await loadSchemaFromSQLServer();
 
   for (const item of schemaList) {
-    /**
-     * searchableText:
-     * 后面用于 embedding 的语义文本
-     */
-    const searchableText = `
-    数据库 ${process.env.SQL_DATABASE}
+   /**
+   * 字段中文注释
+   */
+  const comment =
+  item.COLUMN_COMMENT ||
+  item.COLUMN_NAME
 
-    表 ${item.TABLE_NAME}
+  /**
+  * embedding 语义文本
+  */
+  const searchableText = `
+  数据库 ${process.env.SQL_DATABASE}
 
-    字段 ${item.COLUMN_NAME}
+  数据表 ${item.TABLE_NAME}
 
-    字段中文名 ${item.COLUMN_NAME}
+  字段名 ${item.COLUMN_NAME}
 
-    数据类型 ${item.DATA_TYPE}
+  字段中文名 ${comment}
 
-    这个字段属于 ${item.TABLE_NAME} 表
-    `;
+  数据类型 ${item.DATA_TYPE}
+
+  这个字段属于 ${item.TABLE_NAME} 表
+
+  业务含义 ${comment}
+  `;
 
     db.run(
       `

@@ -3,26 +3,25 @@ import { db } from "./sqlite";
 export const initDB = async () => {
   db.serialize(() => {
     /**
-     * schema 字段表
+     * AI semantic embedding index
+     *
+     * SQLite:
+     * 仅用于 AI retrieval
      */
     db.run(`
-      CREATE TABLE IF NOT EXISTS schema_columns (
-        id TEXT PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS semantic_embedding (
+      id TEXT PRIMARY KEY,
 
-        db_id TEXT,
+      semantic_id TEXT,
 
-        table_name TEXT,
-        table_title TEXT,
+      table_name TEXT,
 
-        column_name TEXT,
-        column_title TEXT,
+      column_name TEXT,
 
-        data_type TEXT,
+      searchable_text TEXT,
 
-        searchable_text TEXT,
-
-        embedding TEXT
-      )
-    `);
+      embedding TEXT
+    )
+    `)
   });
 };
