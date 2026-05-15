@@ -16,11 +16,17 @@ export const syncSchema = async () => {
      * 后面用于 embedding 的语义文本
      */
     const searchableText = `
-      表名 ${item.TABLE_NAME}
+    数据库 ${process.env.SQL_DATABASE}
 
-      字段名 ${item.COLUMN_NAME}
+    表 ${item.TABLE_NAME}
 
-      类型 ${item.DATA_TYPE}
+    字段 ${item.COLUMN_NAME}
+
+    字段中文名 ${item.COLUMN_NAME}
+
+    数据类型 ${item.DATA_TYPE}
+
+    这个字段属于 ${item.TABLE_NAME} 表
     `;
 
     db.run(
