@@ -9,41 +9,37 @@ export class LLMProvider {
    */
   async chat(prompt: string) {
     const response = await fetch(
-      'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+      "https://open.bigmodel.cn/api/paas/v4/chat/completions",
 
       {
-        method: 'POST',
+        method: "POST",
 
         headers: {
-          'Content-Type':
-            'application/json',
+          "Content-Type": "application/json",
 
-          Authorization: `Bearer ${process.env.ZHIPU_API_KEY}`
+          Authorization: `Bearer ${process.env.ZHIPU_API_KEY}`,
         },
 
         body: JSON.stringify({
-          model: 'glm-4-flash',
+          model: "glm-5.1",
 
           messages: [
             {
-              role: 'user',
+              role: "user",
 
-              content: prompt
-            }
+              content: prompt,
+            },
           ],
 
-          temperature: 0.1
-        })
+          temperature: 0.1,
+        }),
       }
-    )
+    );
 
-    const data =
-      await response.json()
+    const data = await response.json();
 
-    console.log(
-      JSON.stringify(data, null, 2)
-    )
+    console.log(JSON.stringify(data, null, 2));
 
-    return data.choices[0].message.content
+    return data.choices[0].message.content;
   }
 }
