@@ -34,7 +34,7 @@ export const buildOrderBy = (context: BuilderContext) => {
        * 普通字段
        */
       return {
-        expression: `${context.tableAlias}.${order.field}`,
+        expression: `${order.field}`,
 
         order: order.direction.toUpperCase(),
       };

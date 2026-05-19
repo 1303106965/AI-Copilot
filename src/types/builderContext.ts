@@ -12,11 +12,6 @@ export interface BuilderContext {
   ast: IntentAST;
 
   /**
-   * 主表 alias
-   */
-  tableAlias: string;
-
-  /**
    * dispatchNode config
    */
   config: any;

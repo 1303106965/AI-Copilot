@@ -27,9 +27,6 @@ export const buildDispatchNode = async (ast: IntentAST) => {
    */
   const context: BuilderContext = {
     ast,
-
-    tableAlias: "t1",
-
     semanticMap: {},
 
     config: {

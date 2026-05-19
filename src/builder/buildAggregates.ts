@@ -14,21 +14,31 @@ export const buildAggregates = (context: BuilderContext) => {
   }
 
   const aggregateColumns = ast.aggregates.map((aggregate) => {
+    const alias = aggregate.alias || `${aggregate.type}_${aggregate.field}`;
+
     return {
       aggregate: true,
 
-      alias: aggregate.alias || `${aggregate.type}_${aggregate.field}`,
+      aggregateType: aggregate.type.toUpperCase(),
 
-      expression: `${aggregate.type.toUpperCase()}(${context.tableAlias}.${
-        aggregate.field
-      })`,
+      alias,
+
+      columnType: "AGGREGATE",
+
+      /**
+       * 注意:
+       * expression 不是 SQL
+       *
+       * 而是 runtime key
+       */
+      expression: aggregate.field,
 
       subquery: false,
     };
   });
 
   /**
-   * append aggregate columns
+   * append
    */
   context.config.config.defaults.arg0.data.columns.push(...aggregateColumns);
 };

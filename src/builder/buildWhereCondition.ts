@@ -11,7 +11,7 @@ export const buildWhereCondition = (context: BuilderContext) => {
       {
         children: ast.filters.map((filter, index) => {
           return {
-            key: `${context.tableAlias}.${filter.field}`,
+            key: `${filter.field}`,
 
             operateType: index === 0 ? null : "AND",
 

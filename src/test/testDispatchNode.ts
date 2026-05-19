@@ -14,7 +14,7 @@ const run = async () => {
   /**
    * intent ast
    */
-  const ast = await generateQueryAST("查询一班成绩大于90的学生姓名");
+  const ast = await generateQueryAST("查询平均成绩最高的3个班级");
 
   console.log("AST:");
   console.log(ast);

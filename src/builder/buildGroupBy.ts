@@ -15,7 +15,7 @@ export const buildGroupBy = (context: BuilderContext) => {
       return {
         alias: field,
 
-        expression: `${context.tableAlias}.${field}`,
+        expression: field,
       };
     }
   );
