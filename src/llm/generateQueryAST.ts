@@ -5,26 +5,22 @@ import { buildQueryPrompt } from "../prompt/buildQueryPrompt";
 import { LLMProvider } from "../providers/llm.provider";
 
 /**
- * 生成 QueryAST
+ * generate QueryAST
  */
 export const generateQueryAST = async (question: string) => {
   /**
-   * semantic retrieval
+   * retrieval
    */
   const retrievalList = await retrieveSemantic(question);
 
-  console.log("retrieval:", retrievalList);
-
   /**
-   * build prompt
+   * prompt
    */
   const prompt = buildQueryPrompt(
     question,
 
     retrievalList as any[]
   );
-
-  // console.log("prompt:", prompt);
 
   /**
    * llm
@@ -33,5 +29,18 @@ export const generateQueryAST = async (question: string) => {
 
   const result = await llm.chat(prompt);
 
-  return result;
+  const cleanResult = result
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+  /**
+   * parse json
+   */
+  try {
+    return JSON.parse(cleanResult);
+  } catch (error) {
+    console.error("QueryAST parse error:", result);
+
+    throw error;
+  }
 };

@@ -33,3 +33,20 @@ pipelineData
        ↓
 
 [5] 页面渲染
+
+自然语言
+↓
+
+Intent AST
+
+↓
+
+Planner
+
+↓
+
+DSL Builder
+
+↓
+
+dispatchNode config
