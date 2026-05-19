@@ -1,44 +1,54 @@
 import { BuilderContext } from "../types/builderContext";
 
+import { SemanticService } from "../services/semantic.service";
+
+const semanticService = new SemanticService();
+
 /**
- * build aggregate columns
+ * build aggregates
  */
-export const buildAggregates = (context: BuilderContext) => {
+export const buildAggregates = async (context: BuilderContext) => {
   const ast = context.ast;
 
   /**
-   * 无聚合
+   * no metrics
    */
-  if (!ast.aggregates?.length) {
+  if (!ast.metrics?.length) {
     return;
   }
 
-  const aggregateColumns = ast.aggregates.map((aggregate) => {
-    const alias = aggregate.alias || `${aggregate.type}_${aggregate.field}`;
-
-    return {
-      aggregate: true,
-
-      aggregateType: aggregate.type.toUpperCase(),
-
-      alias,
-
-      columnType: "AGGREGATE",
-
+  const aggregateColumns = await Promise.all(
+    ast.metrics.map(async (metric) => {
       /**
-       * 注意:
-       * expression 不是 SQL
-       *
-       * 而是 runtime key
+       * 平均成绩
        */
-      expression: aggregate.field,
+      if (metric.includes("平均")) {
+        const semantic = await semanticService.findColumnByTitle("成绩");
 
-      subquery: false,
-    };
-  });
+        if (!semantic) {
+          return null;
+        }
 
-  /**
-   * append
-   */
-  context.config.config.defaults.arg0.data.columns.push(...aggregateColumns);
+        return {
+          aggregate: true,
+
+          aggregateType: "AVG",
+
+          alias: "avg_score",
+
+          columnType: "AGGREGATE",
+
+          expression: semantic.column_name,
+
+          subquery: false,
+        };
+      }
+
+      return null;
+    })
+  );
+
+  context.config.config.defaults.arg0.data.columns.push(
+    ...aggregateColumns.filter(Boolean)
+  );
 };

@@ -1,27 +1,42 @@
 import { BuilderContext } from "../types/builderContext";
 
+import { SemanticService } from "../services/semantic.service";
+
+const semanticService = new SemanticService();
+
 /**
  * build columns
  */
-export const buildColumns = (context: BuilderContext) => {
+export const buildColumns = async (context: BuilderContext) => {
   const ast = context.ast;
 
   /**
-   * 普通字段
+   * display fields
    */
-  const columns = ast.fields.map((field) => {
-    return {
-      aggregate: false,
+  const columns = await Promise.all(
+    ast.displayFields.map(async (fieldTitle) => {
+      /**
+       * semantic lookup
+       */
+      const semantic = await semanticService.findColumnByTitle(fieldTitle);
 
-      alias: field,
+      if (!semantic) {
+        return null;
+      }
 
-      columnType: "FIELD",
+      return {
+        aggregate: false,
 
-      expression: field,
+        alias: semantic.column_name,
 
-      subquery: false,
-    };
-  });
+        columnType: "FIELD",
 
-  context.config.config.defaults.arg0.data.columns = columns;
+        expression: semantic.column_name,
+
+        subquery: false,
+      };
+    })
+  );
+
+  context.config.config.defaults.arg0.data.columns = columns.filter(Boolean);
 };

@@ -8,25 +8,22 @@ import { generateConfigName } from "./generateConfigName";
 
 import { buildColumns } from "./buildColumns";
 
+import { buildAggregates } from "./buildAggregates";
+
 import { buildWhereCondition } from "./buildWhereCondition";
 
 import { buildReturns } from "./buildReturns";
-import { buildAggregates } from "./buildAggregates";
 
-import { buildGroupBy } from "./buildGroupBy";
-
-import { buildOrderBy } from "./buildOrderBy";
-
-import { buildPagination } from "./buildPagination";
 /**
  * build dispatch node
  */
 export const buildDispatchNode = async (ast: IntentAST) => {
   /**
-   * builder context
+   * context
    */
   const context: BuilderContext = {
     ast,
+
     semanticMap: {},
 
     config: {
@@ -88,36 +85,14 @@ export const buildDispatchNode = async (ast: IntentAST) => {
   context.config.config_name = await generateConfigName(ast);
 
   /**
-   * build columns
+   * build
    */
-  buildColumns(context);
+  await buildColumns(context);
 
-  /**
-   * build where
-   */
-  buildWhereCondition(context);
-  /**
-   * aggregates
-   */
-  buildAggregates(context);
+  await buildAggregates(context);
 
-  /**
-   * group by
-   */
-  buildGroupBy(context);
+  await buildWhereCondition(context);
 
-  /**
-   * order by
-   */
-  buildOrderBy(context);
-
-  /**
-   * pagination
-   */
-  buildPagination(context);
-  /**
-   * build returns
-   */
   await buildReturns(context);
 
   return context.config;

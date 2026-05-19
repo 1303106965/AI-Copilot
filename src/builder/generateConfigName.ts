@@ -1,81 +1,54 @@
 import { IntentAST } from "../types/intentAST";
 
-import { SemanticService } from "../services/semantic.service";
-
-/**
- * semantic service
- */
-const semanticService = new SemanticService();
-
 /**
  * generate config name
+ *
+ * 根据用户语义生成标题
  */
 export const generateConfigName = async (ast: IntentAST) => {
   /**
-   * 聚合查询
+   * aggregate query
    */
-  if (ast.intent === "aggregate") {
+  if (ast.queryMode === "aggregate") {
     return generateAggregateName(ast);
   }
 
   /**
-   * 普通查询
+   * detail query
    */
-  return generateQueryName(ast);
+  return generateDetailName(ast);
 };
 
 /**
- * 普通查询
+ * aggregate name
  */
-const generateQueryName = async (ast: IntentAST) => {
+const generateAggregateName = (ast: IntentAST) => {
+  const metrics = ast.metrics?.join("、") || "";
+
+  const dimensions = ast.dimensions?.join("、") || "";
+
   /**
-   * 中文字段名
+   * 平均成绩按班级统计
    */
-  const titles = await Promise.all(
-    ast.fields.map((field) => {
-      return semanticService.getColumnTitle(
-        ast.table,
-
-        field
-      );
-    })
-  );
-
-  return `查询${titles.join("、")}`;
-};
-
-/**
- * 聚合查询
- */
-const generateAggregateName = async (ast: IntentAST) => {
-  if (!ast.aggregates?.length) {
-    return "聚合查询";
+  if (metrics && dimensions) {
+    return `${metrics}按${dimensions}统计`;
   }
 
-  const agg = ast.aggregates[0];
-
   /**
-   * 中文字段名
+   * 只有指标
    */
-  const title = await semanticService.getColumnTitle(
-    ast.table,
+  if (metrics) {
+    return `${metrics}统计`;
+  }
 
-    agg.field
-  );
+  return "聚合查询";
+};
 
-  const aggregateMap: Record<string, string> = {
-    avg: "平均",
+/**
+ * detail name
+ */
+const generateDetailName = (ast: IntentAST) => {
+  const fields = ast.displayFields.join("、");
 
-    count: "统计",
-
-    sum: "求和",
-
-    max: "最大",
-
-    min: "最小",
-  };
-
-  const typeText = aggregateMap[agg.type] || "聚合";
-
-  return `${title}${typeText}查询`;
+  return `查询${fields}`;
 };

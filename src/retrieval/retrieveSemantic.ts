@@ -1,95 +1,49 @@
-import { db } from '../db/sqlite'
+import { EmbeddingProvider } from "../providers/embedding.provider";
 
-import { EmbeddingProvider } from '../providers/embedding.provider'
+import { getSQLiteDB } from "../db/sqlite";
 
-import { cosineSimilarity } from './cosineSimilarity'
+import { cosineSimilarity } from "./cosineSimilarity";
+
+const embeddingProvider = new EmbeddingProvider();
 
 /**
- * semantic retrieval
+ * retrieve semantic
  */
-export const retrieveSemantic =
-  async (query: string) => {
-    const provider =
-      new EmbeddingProvider()
+export const retrieveSemantic = async (question: string) => {
+  const sqliteDB = getSQLiteDB();
 
-    /**
-     * 用户问题 embedding
-     */
-    const queryEmbedding =
-      await provider.embedding(query)
+  /**
+   * embedding
+   */
+  const queryEmbedding = await embeddingProvider.embed(question);
 
-    return new Promise((resolve) => {
-      db.all(
-        `
+  /**
+   * all metadata
+   */
+  const rows = await sqliteDB.all(`
         SELECT *
-        FROM semantic_embedding
-        `,
-        async (err, rows: any[]) => {
-          if (err) {
-            console.error(err)
+        FROM semantic_metadata
+      `);
 
-            resolve([])
+  /**
+   * ranking
+   */
+  return rows
+    .map((row: any) => {
+      const embedding = JSON.parse(row.embedding);
 
-            return
-          }
+      return {
+        ...row,
 
-          const result = rows
-            .map((row) => {
-              /**
-               * embedding 不存在
-               */
-              if (!row.embedding) {
-                return null
-              }
+        score: cosineSimilarity(
+          queryEmbedding,
 
-              const embedding =
-                JSON.parse(
-                  row.embedding
-                )
-
-              /**
-               * cosine similarity
-               */
-              const score =
-                cosineSimilarity(
-                  queryEmbedding,
-
-                  embedding
-                )
-
-              return {
-                semanticId:
-                  row.semantic_id,
-
-                tableName:
-                  row.table_name,
-
-                columnName:
-                  row.column_name,
-
-                searchableText:
-                  row.searchable_text,
-
-                score
-              }
-            })
-            .filter(Boolean)
-
-          /**
-           * 按相似度排序
-           */
-          result.sort(
-            (a: any, b: any) =>
-              b.score - a.score
-          )
-
-          /**
-           * Top 5
-           */
-          resolve(
-            result.slice(0, 5)
-          )
-        }
-      )
+          embedding
+        ),
+      };
     })
-  }
+
+    .sort((a: any, b: any) => b.score - a.score)
+
+    .slice(0, 10);
+};

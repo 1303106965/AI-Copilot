@@ -49,4 +49,20 @@ export class SemanticService {
 
     return semantic?.column_title || columnName;
   }
+  /**
+   * 根据中文名查字段
+   */
+  async findColumnByTitle(title: string) {
+    const result = await sqlServerPool.request().input(
+      "title",
+
+      title
+    ).query(`
+          SELECT TOP 1 *
+          FROM semantic_column
+          WHERE column_title = @title
+        `);
+
+    return result.recordset[0];
+  }
 }

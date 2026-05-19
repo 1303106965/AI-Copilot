@@ -11,27 +11,24 @@ export const buildReturns = async (context: BuilderContext) => {
   const ast = context.ast;
 
   const returns = await Promise.all(
-    ast.fields.map(async (field) => {
-      /**
-       * semantic
-       */
-      const semantic = await semanticService.getColumnSemantic(
-        ast.table,
+    ast.displayFields.map(async (title) => {
+      const semantic = await semanticService.findColumnByTitle(title);
 
-        field
-      );
+      if (!semantic) {
+        return null;
+      }
 
       return {
-        alias: field,
+        alias: semantic.column_name,
 
-        key: field,
+        key: semantic.column_name,
 
-        name: semantic?.column_title || field,
+        name: semantic.column_title,
 
-        type: semantic?.data_type || "string",
+        type: semantic.data_type || "string",
       };
     })
   );
 
-  context.config.config.defaults.arg0.data.returns = returns;
+  context.config.config.defaults.arg0.data.returns = returns.filter(Boolean);
 };

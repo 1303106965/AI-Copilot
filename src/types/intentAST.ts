@@ -1,5 +1,5 @@
 /**
- * 筛选条件
+ * filter
  */
 export interface IntentFilter {
   field: string;
@@ -10,76 +10,50 @@ export interface IntentFilter {
 }
 
 /**
- * 聚合
- */
-export interface IntentAggregate {
-  field: string;
-
-  type: "count" | "sum" | "avg" | "max" | "min";
-
-  alias?: string;
-}
-
-/**
- * 排序
- */
-export interface IntentOrder {
-  field: string;
-
-  direction: "asc" | "desc";
-}
-
-/**
- * 用户查询意图 AST
+ * intent ast
  *
- * 注意:
- * 这里只表达用户意图
- *
- * 不涉及:
- * pipeline
- * output
- * form
- * contract
- * UI
+ * 只表达用户语义
  */
 export interface IntentAST {
   /**
-   * 查询类型
+   * query mode
    */
-  intent: "query" | "aggregate";
+  queryMode: "detail" | "aggregate";
 
   /**
-   * 主表
+   * table
    */
   table: string;
 
   /**
-   * 查询字段
+   * 用户想看的字段
    */
-  fields: string[];
+  displayFields: string[];
 
   /**
-   * 筛选条件
+   * 指标
+   *
+   * 例如:
+   * 平均成绩
+   * 总人数
+   */
+  metrics?: string[];
+
+  /**
+   * 维度
+   *
+   * 例如:
+   * 班级
+   */
+  dimensions?: string[];
+
+  /**
+   * filter
    */
   filters: IntentFilter[];
 
   /**
-   * group by
+   * 原始问题
    */
-  groupBy?: string[];
-
-  /**
-   * 聚合
-   */
-  aggregates?: IntentAggregate[];
-
-  /**
-   * 排序
-   */
-  orderBy?: IntentOrder[];
-
-  /**
-   * 分页
-   */
-  pageSize?: number;
+  rawQuestion: string;
 }

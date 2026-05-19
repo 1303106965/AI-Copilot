@@ -1,13 +1,13 @@
 import { retrieveSemantic } from "../retrieval/retrieveSemantic";
 
-import { buildQueryPrompt } from "../prompt/buildQueryPrompt";
+import { buildIntentPrompt } from "../prompt/buildIntentPrompt";
 
 import { LLMProvider } from "../providers/llm.provider";
 
 /**
- * generate QueryAST
+ * generate intent ast
  */
-export const generateQueryAST = async (question: string) => {
+export const generateIntentAST = async (question: string) => {
   /**
    * retrieval
    */
@@ -16,7 +16,7 @@ export const generateQueryAST = async (question: string) => {
   /**
    * prompt
    */
-  const prompt = buildQueryPrompt(
+  const prompt = buildIntentPrompt(
     question,
 
     retrievalList as any[]
@@ -29,17 +29,21 @@ export const generateQueryAST = async (question: string) => {
 
   const result = await llm.chat(prompt);
 
+  /**
+   * clean markdown
+   */
   const cleanResult = result
     .replace(/```json/g, "")
     .replace(/```/g, "")
     .trim();
+
   /**
-   * parse json
+   * parse
    */
   try {
     return JSON.parse(cleanResult);
   } catch (error) {
-    console.error("QueryAST parse error:", result);
+    console.error(cleanResult);
 
     throw error;
   }

@@ -1,11 +1,12 @@
-/**
- * 计算两个向量的余弦相似度
- */
 export const cosineSimilarity = (
   vecA: number[],
 
   vecB: number[]
-): number => {
+) => {
+  if (!vecA || !vecB) {
+    return 0;
+  }
+
   let dotProduct = 0;
 
   let normA = 0;

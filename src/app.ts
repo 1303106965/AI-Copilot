@@ -1,28 +1,23 @@
 import express from "express";
 
-import { initDB } from "./db/init";
-
-import { connectSQLServer } from "./db/sqlserver";
-
-import { syncSchema } from "./schema/syncSchema";
-
 const app = express();
 
 app.use(express.json());
 
-const start = async () => {
-  // 初始化 SQLite
-  await initDB();
-
-  // 连接 SQLServer
-  await connectSQLServer();
-
-  // 同步 schema
-  await syncSchema();
-
-  app.listen(3001, () => {
-    console.log("server running 3001");
+/**
+ * health check
+ */
+app.get("/health", (_, res) => {
+  res.json({
+    success: true,
   });
-};
+});
 
-start();
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(
+    `server running:
+${PORT}`
+  );
+});

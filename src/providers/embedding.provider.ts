@@ -1,22 +1,29 @@
-import ollama from "ollama";
+import OpenAI from "openai";
 
 /**
- * 本地 embedding provider
- *
- * 当前:
- * Ollama + nomic-embed-text
+ * embedding provider
  */
 export class EmbeddingProvider {
-  /**
-   * 生成 embedding
-   */
-  async embedding(text: string): Promise<number[]> {
-    const response = await ollama.embeddings({
-      model: "nomic-embed-text",
+  private client: OpenAI;
 
-      prompt: text,
+  constructor() {
+    this.client = new OpenAI({
+      baseURL: "http://127.0.0.1:11434/v1",
+
+      apiKey: "ollama",
+    });
+  }
+
+  /**
+   * embedding
+   */
+  async embed(text: string): Promise<number[]> {
+    const response = await this.client.embeddings.create({
+      model: "bge-m3",
+
+      input: text,
     });
 
-    return response.embedding;
+    return response.data[0].embedding;
   }
 }
