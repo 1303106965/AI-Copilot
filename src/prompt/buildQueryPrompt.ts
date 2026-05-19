@@ -1,5 +1,5 @@
 /**
- * 构建 Query Prompt
+ * build query prompt
  */
 export const buildQueryPrompt = (
   question: string,
@@ -16,11 +16,11 @@ export const buildQueryPrompt = (
 
 字段名: ${item.columnName}
 
-语义信息:
+字段语义:
 ${item.searchableText}
-`
+`;
     })
-    .join('\n')
+    .join("\n");
 
   return `
 你是一个数据库查询AI助手。
@@ -45,6 +45,12 @@ ${question}
 可用字段:
 ${context}
 
-请只返回 JSON。
-`
-}
+要求:
+1. 只能使用提供的字段
+2. 不要生成不存在字段
+3. 必须返回 JSON
+4. 不要返回 markdown
+
+请直接返回 QueryAST JSON。
+`;
+};
