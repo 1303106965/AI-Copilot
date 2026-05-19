@@ -2,61 +2,126 @@ import { v4 as uuidv4 } from "uuid";
 
 import { IntentAST } from "../types/intentAST";
 
+import { BuilderContext } from "../types/builderContext";
+
+import { generateConfigName } from "./generateConfigName";
+
 import { buildColumns } from "./buildColumns";
 
 import { buildWhereCondition } from "./buildWhereCondition";
 
+import { buildReturns } from "./buildReturns";
+import { buildAggregates } from "./buildAggregates";
+
+import { buildGroupBy } from "./buildGroupBy";
+
+import { buildOrderBy } from "./buildOrderBy";
+
+import { buildPagination } from "./buildPagination";
 /**
  * build dispatch node
  */
-export const buildDispatchNode = (ast: IntentAST) => {
-  return {
-    type: "dispatchNode",
+export const buildDispatchNode = async (ast: IntentAST) => {
+  /**
+   * builder context
+   */
+  const context: BuilderContext = {
+    ast,
+
+    tableAlias: "t1",
+
+    semanticMap: {},
 
     config: {
-      contract_id: uuidv4(),
+      type: "dispatchNode",
 
-      defaults: {
-        arg0: {
-          data: {
-            allowEmptyWhere: false,
+      config: {
+        contract_id: uuidv4(),
 
-            columns: buildColumns(ast),
+        defaults: {
+          arg0: {
+            data: {
+              allowEmptyWhere: false,
 
-            dbId: "sampledb",
+              columns: [],
 
-            groupByColumns: ast.groupBy || [],
+              dbId: "sampledb",
 
-            joins: [],
+              groupByColumns: [],
 
-            orderBy: ast.orderBy || [],
+              joins: [],
 
-            paginationNode: {
-              pageNo: 1,
+              orderBy: [],
 
-              pageSize: ast.pageSize || 10,
+              paginationNode: {
+                pageNo: 1,
+
+                pageSize: 10,
+              },
+
+              searchStatusFlag: false,
+
+              tableName: ast.table,
+
+              whereCondition: null,
+
+              returns: [],
             },
-
-            searchStatusFlag: false,
-
-            tableName: ast.table,
-
-            whereCondition: buildWhereCondition(ast),
           },
         },
+
+        fn: "selectSingleTable",
+
+        version: "v2",
       },
 
-      fn: "selectSingleTable",
+      name: "JavaSqlContract",
 
-      version: "v2",
+      config_name: "",
+
+      contract_v: "1.0.0",
+
+      config_v: "1.0.0",
     },
-
-    name: "JavaSqlContract",
-
-    config_name: "AI生成查询",
-
-    contract_v: "1.0.0",
-
-    config_v: "1.0.0",
   };
+
+  /**
+   * config name
+   */
+  context.config.config_name = await generateConfigName(ast);
+
+  /**
+   * build columns
+   */
+  buildColumns(context);
+
+  /**
+   * build where
+   */
+  buildWhereCondition(context);
+  /**
+   * aggregates
+   */
+  buildAggregates(context);
+
+  /**
+   * group by
+   */
+  buildGroupBy(context);
+
+  /**
+   * order by
+   */
+  buildOrderBy(context);
+
+  /**
+   * pagination
+   */
+  buildPagination(context);
+  /**
+   * build returns
+   */
+  await buildReturns(context);
+
+  return context.config;
 };

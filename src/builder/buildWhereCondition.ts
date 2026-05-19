@@ -1,15 +1,17 @@
-import { IntentAST } from "../types/intentAST";
+import { BuilderContext } from "../types/builderContext";
 
 /**
- * build where condition
+ * build where
  */
-export const buildWhereCondition = (ast: IntentAST) => {
-  return {
+export const buildWhereCondition = (context: BuilderContext) => {
+  const ast = context.ast;
+
+  context.config.config.defaults.arg0.data.whereCondition = {
     children: [
       {
         children: ast.filters.map((filter, index) => {
           return {
-            key: filter.field,
+            key: `${context.tableAlias}.${filter.field}`,
 
             operateType: index === 0 ? null : "AND",
 
@@ -38,12 +40,6 @@ const convertOperator = (operator: string) => {
 
     case "<":
       return "LT";
-
-    case ">=":
-      return "GTE";
-
-    case "<=":
-      return "LTE";
 
     default:
       return "EQ";

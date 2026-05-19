@@ -3,10 +3,14 @@ import dotenv from "dotenv";
 import { generateQueryAST } from "../llm/generateQueryAST";
 
 import { buildDispatchNode } from "../builder/buildDispatchNode";
-
+import { connectSQLServer } from "../db/sqlserver";
 dotenv.config();
 
 const run = async () => {
+  /**
+   * connect sqlserver
+   */
+  await connectSQLServer();
   /**
    * intent ast
    */
@@ -18,7 +22,7 @@ const run = async () => {
   /**
    * build config
    */
-  const config = buildDispatchNode(ast);
+  const config = await buildDispatchNode(ast);
 
   console.log(JSON.stringify(config, null, 2));
 };
