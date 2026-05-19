@@ -1,59 +1,51 @@
 /**
- * build query prompt
+ * build intent prompt
  */
 export const buildQueryPrompt = (
   question: string,
 
   retrievalList: any[]
 ) => {
-  /**
-   * retrieval context
-   */
   const context = retrievalList
     .map((item) => {
       return `
 表名: ${item.tableName}
 
 字段名: ${item.columnName}
-
-字段语义:
-${item.searchableText}
 `;
     })
     .join("\n");
 
   return `
-你是一个 QueryAST 生成器。
+你是一个数据库查询意图识别AI。
 
 你的任务:
 
-根据用户问题生成 QueryAST JSON。
+根据用户问题生成 IntentAST。
 
 注意:
-你生成的是 QueryAST。
-不是 SQL。
+这里只描述用户查询意图。
 
-禁止生成:
+禁止:
 - SQL
-- AVG(score)
-- COUNT(*)
-- SELECT *
-- ORDER BY
+- dispatchNode
+- pipeline
+- UI config
 
-只能生成 QueryAST JSON。
+====================
 
-========================
-
-正确 QueryAST 示例:
+IntentAST 示例:
 
 {
+  "intent": "aggregate",
+
   "table": "students",
 
-  "select": [
+  "fields": [
     "class_name"
   ],
 
-  "where": [],
+  "filters": [],
 
   "groupBy": [
     "class_name"
@@ -77,63 +69,45 @@ ${item.searchableText}
     }
   ],
 
-  "limit": 3
+  "pageSize": 3
 }
 
-========================
-
-错误示例（禁止）:
-
-{
-  "select": [
-    "AVG(score)"
-  ]
-}
-
-========================
+====================
 
 用户问题:
 ${question}
 
-========================
+====================
 
 可用字段:
 ${context}
 
-========================
+====================
 
 要求:
 
-1. 只能使用提供字段
+1. 只返回 JSON
 
-2. aggregates:
-用于聚合
+2. 不要 markdown
 
-例如:
+3. fields:
+用户真正想看的字段
 
-{
-  "field": "score",
-  "type": "avg"
-}
+4. aggregates:
+聚合信息
 
-3. orderBy:
-只能引用字段名
+5. filters:
+筛选条件
 
-禁止:
-"AVG(score)"
+6. groupBy:
+分组字段
 
-4. select:
-只能放字段名
+7. orderBy:
+排序字段
 
-禁止:
-"AVG(score)"
+8. pageSize:
+返回数量
 
-5. 必须返回 JSON
-
-6. 不要 markdown
-
-7. 不要解释
-
-直接返回 QueryAST JSON。
+直接返回 IntentAST JSON。
 `;
 };
