@@ -65,4 +65,26 @@ export class SemanticService {
 
     return result.recordset[0];
   }
+  /**
+   * find column by semantic
+   */
+  async findColumnBySemantic(semantic: string) {
+    const result = await sqlServerPool.request().input(
+      "semantic",
+
+      `%${semantic}%`
+    ).query(`
+        SELECT TOP 1 *
+        FROM semantic_column
+
+        WHERE
+          column_title LIKE @semantic
+
+          OR aliases LIKE @semantic
+
+          OR business_meaning LIKE @semantic
+      `);
+
+    return result.recordset[0];
+  }
 }
