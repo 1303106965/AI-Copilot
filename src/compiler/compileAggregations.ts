@@ -1,6 +1,7 @@
 import { CompilerContext } from "../types/compilerContext";
 
 import { SemanticService } from "../services/semantic.service";
+import { getDispatchData } from "./dispatchNodeAccessor";
 
 const semanticService = new SemanticService();
 
@@ -24,7 +25,7 @@ const aggregationMap: Record<string, string> = {
  */
 export const compileAggregations = async (context: CompilerContext) => {
   const metrics = context.plan.metrics;
-
+  const data = getDispatchData(context);
   for (const metric of metrics) {
     /**
      * aggregation required
@@ -44,7 +45,7 @@ export const compileAggregations = async (context: CompilerContext) => {
       continue;
     }
 
-    context.config.config.defaults.arg0.data.columns.push({
+    data.columns.push({
       aggregate: true,
 
       aggregateType: aggregationMap[metric.aggregation],

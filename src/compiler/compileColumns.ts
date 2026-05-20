@@ -1,6 +1,7 @@
 import { CompilerContext } from "../types/compilerContext";
 
 import { SemanticService } from "../services/semantic.service";
+import { getDispatchData } from "./dispatchNodeAccessor";
 
 const semanticService = new SemanticService();
 
@@ -9,7 +10,7 @@ const semanticService = new SemanticService();
  */
 export const compileColumns = async (context: CompilerContext) => {
   const outputs = context.plan.outputs;
-
+  const data = getDispatchData(context);
   for (const output of outputs) {
     /**
      * semantic column
@@ -21,8 +22,7 @@ export const compileColumns = async (context: CompilerContext) => {
     if (!semanticColumn) {
       continue;
     }
-
-    context.config.config.defaults.arg0.data.columns.push({
+    data.columns.push({
       aggregate: false,
 
       alias: semanticColumn.column_name,
@@ -30,6 +30,15 @@ export const compileColumns = async (context: CompilerContext) => {
       expression: semanticColumn.column_name,
 
       subquery: false,
+    });
+    data.returns.push({
+      key: semanticColumn.column_name,
+
+      alias: semanticColumn.column_name,
+
+      name: semanticColumn.column_title,
+
+      type: semanticColumn.data_type,
     });
   }
 };

@@ -1,6 +1,7 @@
 import { CompilerContext } from "../types/compilerContext";
 
 import { SemanticService } from "../services/semantic.service";
+import { getDispatchData } from "./dispatchNodeAccessor";
 
 const semanticService = new SemanticService();
 
@@ -28,7 +29,7 @@ const operatorMap: Record<string, string> = {
  */
 export const compileFilters = async (context: CompilerContext) => {
   const filters = context.plan.filters;
-
+  const data = getDispatchData(context);
   if (!filters?.length) {
     return;
   }
@@ -56,7 +57,7 @@ export const compileFilters = async (context: CompilerContext) => {
     })
   );
 
-  context.config.config.defaults.arg0.data.whereCondition = {
+  data.whereCondition = {
     type: "AND",
 
     conditions: conditions.filter(Boolean),

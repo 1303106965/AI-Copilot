@@ -66,4 +66,16 @@ export interface SemanticQueryPlan {
    * raw question
    */
   rawQuestion: string;
+  /**
+   * result mode
+   */
+  resultMode?: "list" | "single";
+  /**
+   * pagination
+   */
+  pagination?: {
+    page: number;
+
+    pageSize: number;
+  };
 }
